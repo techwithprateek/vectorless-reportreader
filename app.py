@@ -310,10 +310,18 @@ def _run_indexing(uploaded_file):
         st.session_state.stage = "loaded"
 
         # Auto-extract key metrics in the background (shown on Screen 2)
-        # We do this here so the metrics are ready when the user switches tabs
-        with st.spinner("Extracting key metrics…"):
-            metrics = extract_key_metrics(mgr, doc_id, tree)
-            st.session_state.metrics = metrics
+        # This is optional enrichment and should not block the loaded view.
+        try:
+            with st.spinner("Extracting key metrics…"):
+                metrics = extract_key_metrics(mgr, doc_id, tree)
+                st.session_state.metrics = metrics
+        except Exception as e:
+            logger.exception("Key-metrics extraction failed: %s", e)
+            st.session_state.metrics = []
+            st.warning(
+                "⚠️ Document indexed successfully, but key metrics could not be "
+                "extracted right now. Q&A is still available."
+            )
 
         st.success("✅ Document indexed! Switching to report view…")
         st.rerun()  # Transition to the loaded layout
