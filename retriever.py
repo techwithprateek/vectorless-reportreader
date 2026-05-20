@@ -102,7 +102,16 @@ def _call_llm(messages: list, model: Optional[str] = None) -> str:
         kwargs["api_base"] = base_url
         logger.info("Using Ollama at %s with model %s", base_url, model)
 
-    response = litellm.completion(model=model, messages=messages, **kwargs)
+    try:
+        response = litellm.completion(model=model, messages=messages, **kwargs)
+    except Exception:
+        logger.exception(
+            "LLM completion failed for model=%s api_base=%s",
+            model,
+            kwargs.get("api_base"),
+        )
+        raise
+
     return response.choices[0].message.content.strip()
 
 
