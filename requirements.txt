@@ -1,0 +1,22 @@
+# ReportReader — Python dependencies
+#
+# Install with:   pip install -r requirements.txt
+#
+# Notes:
+#   - pageindex    : Self-hosted vectorless RAG — builds tree index from PDFs
+#                    Uses PyMuPDF internally for PDF parsing.
+#                    GitHub: https://github.com/VectifyAI/PageIndex
+#   - litellm      : Universal LLM gateway — routes to OpenAI, Anthropic,
+#                    Ollama, Bedrock, etc. from a single interface.
+#                    Set LLM_MODEL in .env to switch providers.
+#   - pymupdf      : PDF parsing library used by PageIndex (also known as fitz)
+#   - streamlit    : Web UI framework — runs the app with `streamlit run app.py`
+#   - python-dotenv: Loads .env file so API keys don't need to be exported manually
+
+streamlit>=1.35.0
+pageindex
+pymupdf
+litellm>=1.40.0
+python-dotenv
+openai           # Required by LiteLLM for OpenAI / Ollama routing
+anthropic        # Required by LiteLLM for Anthropic models (optional)

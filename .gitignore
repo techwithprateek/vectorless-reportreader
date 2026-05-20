@@ -1,0 +1,25 @@
+# Environment — never commit API keys
+.env
+
+# PageIndex cached tree files (can be regenerated from the PDF)
+workspace/
+
+# Uploaded PDFs / sample data
+sample/
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/secrets.toml
