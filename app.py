@@ -171,7 +171,7 @@ def _render_tree_node(node: dict, depth: int):
     Recursively render a PageIndex tree node in the sidebar.
 
     Each node is shown as indented text with its page range.
-    Child nodes are rendered under an expander to keep the sidebar tidy.
+    Child nodes are rendered recursively below their parent using indentation.
 
     Parameters
     ----------
