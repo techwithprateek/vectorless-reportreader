@@ -290,7 +290,8 @@ def _run_indexing(uploaded_file):
             # Create an IndexManager (or reuse if already in session state)
             # The workspace persists the tree to disk so future loads are instant
             if st.session_state.index_mgr is None:
-                st.session_state.index_mgr = IndexManager(workspace_path="./workspace")
+                workspace_path = os.getenv("PAGEINDEX_WORKSPACE", "./workspace")
+                st.session_state.index_mgr = IndexManager(workspace_path=workspace_path)
 
             mgr = st.session_state.index_mgr
 
