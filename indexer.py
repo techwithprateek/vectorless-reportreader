@@ -130,8 +130,8 @@ class IndexManager:
         The tree is a nested dict of nodes, each with:
           {
             "title":       "Financial Highlights",
-            "start_index": 18,   # first page of this section (0-based)
-            "end_index":   24,   # last page of this section (inclusive)
+            "start_index": 18,   # first page of this section (1-based)
+            "end_index":   24,   # last page of this section (inclusive, 1-based)
             "summary":     "Key financial metrics for FY2024...",
             "nodes":       [...]  # child nodes (sub-sections)
           }
