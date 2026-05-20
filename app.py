@@ -27,7 +27,6 @@ Run with:
 """
 
 import os
-import json
 import tempfile
 import logging
 
