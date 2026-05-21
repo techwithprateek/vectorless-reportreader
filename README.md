@@ -112,7 +112,7 @@ Traditional RAG chunks these arbitrarily — a chunk might start mid-sentence in
 |---|---|
 | UI | Streamlit |
 | PDF parsing + tree index | `pageindex` (pip) + PyMuPDF |
-| LLM | GPT-4o or Claude 3.5 Sonnet via LiteLLM |
+| LLM | Any model via LiteLLM — OpenAI, Anthropic, Ollama, Groq… |
 | State | `st.session_state` |
 
 ---
@@ -122,6 +122,105 @@ Traditional RAG chunks these arbitrarily — a chunk might start mid-sentence in
 1. **Upload** — drag-and-drop PDF, progress indicator while tree is built (~60–120s for large reports)
 2. **Key Metrics** — auto-extracted Revenue, PAT, EPS, D/E ratio — each with a page citation
 3. **Q&A** — free-text questions with suggested chips; answers always cite section + page range
+
+---
+
+## Project Structure
+
+```
+vectorless-reportreader/
+│
+├── app.py            # Streamlit UI — all three screens, sidebar tree map,
+│                     # session state management, Q&A chat thread
+│
+├── indexer.py        # IndexManager class — wraps PageIndexClient
+│                     # Builds the tree from a PDF, caches it in workspace/,
+│                     # exposes get_tree() and get_page_content()
+│
+├── retriever.py      # Two-step retrieval pipeline:
+│                     #   Step 1 — navigate_tree(): LLM reasons over tree
+│                     #            to find relevant section + page range
+│                     #   Step 2 — answer_question(): fetches those pages,
+│                     #            calls LLM to generate a cited answer
+│                     # Also contains extract_key_metrics() for Screen 2
+│
+├── prompts.py        # All LLM system prompts as named string constants:
+│                     #   TREE_NAVIGATION_PROMPT  — which section to look in
+│                     #   KEY_METRICS_PROMPT      — extract Revenue/PAT/EPS/D:E
+│                     #   QA_SYSTEM_PROMPT        — answer with citations
+│
+├── requirements.txt  # Python dependencies
+├── .env.example      # API key template (copy to .env and fill in)
+├── .gitignore        # Excludes .env, workspace/, *.pdf
+└── workspace/        # Auto-created — PageIndex caches tree JSON files here
+                      # (gitignored — regenerated automatically on first run)
+```
+
+### How the files connect
+
+```
+app.py
+  └── on PDF upload → indexer.py (IndexManager.index_pdf)
+                          └── PageIndexClient builds tree → workspace/
+  └── on question  → retriever.py (answer_question)
+                          ├── navigate_tree() — LLM + prompts.py reads tree
+                          ├── IndexManager.get_page_content() — fetch pages
+                          └── LLM + prompts.py generates cited answer
+  └── on load      → retriever.py (extract_key_metrics)
+                          └── same pipeline, targeted at financial metrics
+```
+
+---
+
+## How to Run
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/techwithprateek/vectorless-reportreader.git
+cd vectorless-reportreader
+pip install -r requirements.txt
+```
+
+### 2. Configure your LLM
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and set your model + API key. Pick one:
+
+```bash
+# OpenAI
+LLM_MODEL=gpt-4o
+OPENAI_API_KEY=sk-your-key-here
+
+# Anthropic
+LLM_MODEL=claude-3-5-sonnet-20241022
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+
+# Ollama (local, free — run `ollama pull llama3.2` first)
+LLM_MODEL=ollama/llama3.2
+OLLAMA_BASE_URL=http://localhost:11434
+```
+
+> LiteLLM handles routing — just change `LLM_MODEL` to switch providers.
+> Full list of supported models: [docs.litellm.ai/docs/providers](https://docs.litellm.ai/docs/providers)
+
+### 3. Run the app
+
+```bash
+streamlit run app.py
+```
+
+The app opens at **http://localhost:8501**.
+
+### 4. Use it
+
+1. Upload any Indian company annual report PDF (max 50 MB)
+2. Wait ~1–2 minutes while PageIndex builds the document tree *(only happens once per document — subsequent loads are instant)*
+3. View auto-extracted **Key Metrics** (Revenue, PAT, EPS, D/E Ratio)
+4. Switch to **Q&A** and ask anything — every answer cites the section and page
 
 ---
 
